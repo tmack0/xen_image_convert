@@ -1,0 +1,43 @@
+--- xenmigrate.py     2012-05-23 13:57:34.000000000 -0700
++++ Downloads/xenmigrate.py     2012-07-13 14:50:53.000000000 -0700
+@@ -11,7 +11,6 @@
+ """
+ 
+ import gzip
+-import fnmatch
+ import os
+ import subprocess
+ import sys
+@@ -294,14 +293,7 @@
+     notification=float(2**30) # 2**30=GB
+     if gz:
+         notification=notification/4
+-    numfiles=0
+-    for dirobj in os.listdir(refdir):
+-        try:
+-            numfile=int(dirobj)
+-        except ValueError, TypeError:
+-            numfile=0;
+-        if numfile>numfiles:
+-            numfiles=numfile
++    numfiles=len([dirobj for dirobj in os.listdir(refdir) if os.path.isfile(dirobj)])
+     print 'last file         :',numfiles+1
+     print 'disk image size   :',(numfiles+1)/1024,'GB'
+     if os.path.isdir(refdir):
+@@ -335,11 +327,9 @@
+                             data=source.read(blocksize)
+                             if len(data)==0:
+                                 source.close()
+-                                #sys.stdout.write(str('\nProcessing '+refdir+filename+'...'))
+                                 break # EOF
+                             dest.write(data)
+                     else:
+-                        #print '\n'+refdir+filename+' not found, skipping...'
+                         if gz:
+                             dest.write(blankblock)
+                         else:
+@@ -517,4 +507,3 @@
+         else:
+             print 'ERROR: convert source directory or file does not exist'
+             sys.exit(1)
+-
